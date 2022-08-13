@@ -17,7 +17,7 @@ export class NoteList {
   @Prop([
     raw({
       user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-      role: { type: [Role] },
+      roles: { type: [Role] },
     }),
   ])
   contributors: Record<string, any>[];
