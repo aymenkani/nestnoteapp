@@ -8,7 +8,12 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Post()
-  singup(@Body() userDto: UserDto) {
-    return this.appService.signup(userDto);
+  async login(@Body() userDto: UserDto) {
+    return await this.appService.login(userDto);
+  }
+
+  @Post()
+  async singup(@Body() userDto: UserDto) {
+    return await this.appService.signup(userDto);
   }
 }

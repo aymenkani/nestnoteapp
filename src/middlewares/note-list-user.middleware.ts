@@ -22,7 +22,7 @@ export class NoteListUserMiddleware implements NestMiddleware {
     if (!noteList) throw new BadRequestException("noteList doesn't exist!");
 
     const user = noteList.contributors?.find(
-      (userObj) => userObj.user.id === userId,
+      (userObj) => userObj.user === userId,
     );
 
     if (!user) throw new BadRequestException('not authorized!');

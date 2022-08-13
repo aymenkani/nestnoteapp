@@ -16,7 +16,7 @@ export class NotesListsService {
   }
 
   async findOneById(id: string): Promise<NoteList> {
-    return await this.noteListModel.findById(id).populate('contributors.user');
+    return await this.noteListModel.findById(id);
   }
 
   async findAll(): Promise<NoteList[]> {

@@ -3,14 +3,20 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { UserDto } from '../dto/user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async create(userDto: UserDto): Promise<User> {
-    const createdUser = new this.userModel(userDto);
-    return createdUser.save();
+    const hashedPwd = await bcrypt.hash(userDto.password, 10);
+
+    const createdUser = new this.userModel({
+      email: userDto.email,
+      password: hashedPwd,
+    });
+    return await createdUser.save();
   }
 
   async findOneByEmail(email: string): Promise<User> {

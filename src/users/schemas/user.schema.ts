@@ -8,6 +8,9 @@ export type UserDocument = User & Document;
 @Schema()
 export class User {
   @Prop()
+  _id: mongoose.Schema.Types.ObjectId;
+
+  @Prop()
   email: string;
 
   @Prop()
