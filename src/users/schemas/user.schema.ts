@@ -7,17 +7,16 @@ export type UserDocument = User & Document;
 
 @Schema()
 export class User {
-  @Prop()
   _id: mongoose.Schema.Types.ObjectId;
 
   @Prop()
   email: string;
 
   @Prop()
-  password: number;
+  password: string;
 
   @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Note' }])
-  NoteLists?: NoteList[];
+  noteLists?: NoteList[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

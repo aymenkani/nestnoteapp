@@ -11,5 +11,6 @@ import { NoteList, NoteListSchema } from './schemas/note-list.schema';
   ],
   controllers: [],
   providers: [NotesListsService],
+  exports: [MongooseModule],
 })
-export class NotesModule {}
+export class NotesListsModule {}

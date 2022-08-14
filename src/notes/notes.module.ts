@@ -9,5 +9,6 @@ import { Note, NoteSchema } from './schemas/note.schema';
   ],
   controllers: [],
   providers: [NotesService],
+  exports: [MongooseModule],
 })
 export class NotesModule {}

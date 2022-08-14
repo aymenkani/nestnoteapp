@@ -30,4 +30,8 @@ export class UsersService {
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
   }
+
+  async update(content: any, userId): Promise<User> {
+    return await this.userModel.findByIdAndUpdate(userId, content);
+  }
 }

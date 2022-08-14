@@ -15,6 +15,10 @@ export class NotesListsService {
     return createdNoteList.save();
   }
 
+  async findByName(name: string): Promise<NoteList> {
+    return await this.noteListModel.findOne({ name });
+  }
+
   async findOneById(id: string): Promise<NoteList> {
     return await this.noteListModel.findById(id);
   }
