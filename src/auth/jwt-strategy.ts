@@ -18,7 +18,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    console.log(payload);
     // return error if user with userId doesn't exist in the database
     return { userId: payload.sub, email: payload.email };
   }

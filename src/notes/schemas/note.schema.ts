@@ -11,10 +11,10 @@ export class Note {
   title: string;
 
   @Prop()
-  discription: string;
+  discription?: string;
 
-  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }])
-  contributors: User[];
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  creator: User;
 }
 
 export const NoteSchema = SchemaFactory.createForClass(Note);

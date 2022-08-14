@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserDto } from './dto/user.dto';
 import { User } from './users/schemas/user.schema';
 import { UsersService } from './users/users.service';
@@ -7,14 +11,18 @@ import { JwtService } from '@nestjs/jwt';
 import { NoteListDto } from './dto/note-list.dto';
 import { NoteList } from './notesLists/schemas/note-list.schema';
 import { NotesListsService } from './notesLists/notes-lists.service';
+import { NotesService } from './notes/notes.service';
 import { JwtPayload } from './auth/jwt-strategy';
 import { Role } from './enums/role.enum';
+import { AddNoteToListDto } from './dto/add-note-to-list.dto';
+import { InviteUserDto } from './dto/invite-user.dto';
 
 @Injectable()
 export class AppService {
   constructor(
     private usersService: UsersService,
     private notesListsService: NotesListsService,
+    private NoteService: NotesService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -58,5 +66,34 @@ export class AppService {
     );
 
     return createdNoteList;
+  }
+
+  async addNoteToList(addNoteToListDto: AddNoteToListDto, userId: string) {
+    const creator = await this.usersService.findOneById(userId);
+
+    if (!creator) throw new UnauthorizedException();
+
+    const note = await this.NoteService.create({
+      ...addNoteToListDto.note,
+      creator,
+    });
+
+    const updatedNoteList = await this.notesListsService.addNote(
+      note,
+      addNoteToListDto.noteListId,
+    );
+
+    return updatedNoteList;
+  }
+
+  async inviteUser(inviteUserDto: InviteUserDto) {
+    const user = await this.usersService.findOneById(inviteUserDto.userId);
+    if (!user) throw new UnauthorizedException();
+
+    return await this.notesListsService.addContributorToNoteList(
+      user,
+      inviteUserDto.roles,
+      inviteUserDto.noteListId,
+    );
   }
 }

@@ -31,7 +31,7 @@ export class UsersService {
     return this.userModel.find().exec();
   }
 
-  async update(content: any, userId): Promise<User> {
+  async update(content: any, userId: string): Promise<User> {
     return await this.userModel.findByIdAndUpdate(userId, content);
   }
 }

@@ -12,6 +12,9 @@ import { NotesListsService } from './notesLists/notes-lists.service';
 import { UsersModule } from './users/users.module';
 import { UsersService } from './users/users.service';
 import { JwtStrategy } from './auth/jwt-strategy';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './auth/roles.guard';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -32,10 +35,14 @@ import { JwtStrategy } from './auth/jwt-strategy';
     NotesService,
     UsersService,
     JwtStrategy,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
   ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(NoteListUserMiddleware).forRoutes('createList');
-  }
-}
+export class AppModule {}

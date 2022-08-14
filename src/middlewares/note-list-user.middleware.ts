@@ -12,18 +12,20 @@ export class NoteListUserMiddleware implements NestMiddleware {
   constructor(private notesListsService: NotesListsService) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
-    const { noteListId, userId } = req.body;
+    const { noteListId } = req.body;
 
     const noteList = await this.notesListsService.findOneById(noteListId);
     if (!noteList) return next();
 
+    console.log(req.user);
+
     const user = noteList.contributors?.find(
-      (userObj) => userObj.user === userId,
+      (userObj) => userObj.user.toString() === req.user?.userId,
     );
 
     if (!user) return next();
 
-    req.user = user as { user: User; roles: Role[] };
+    req.noteListUser = user as { user: User; roles: Role[] };
 
     next();
   }
