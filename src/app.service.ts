@@ -21,6 +21,7 @@ import { EditNoteDto } from './dto/edit-note.dto';
 import { DeleteNoteDto } from './dto/delete-note.dto';
 import { RemoveContributorDto } from './dto/remove-contributor.dto';
 import { ChangePrivilegeDto } from './dto/change-privilege.dto';
+import { DeleteNoteListDto } from './dto/delete-notelist.dto';
 
 @Injectable()
 export class AppService {
@@ -113,6 +114,10 @@ export class AppService {
     );
 
     return true;
+  }
+
+  async deleteNoteList(deleteNoteListDto: DeleteNoteListDto) {
+    return await this.notesListsService.deleteNoteList(deleteNoteListDto);
   }
 
   async inviteUser(inviteUserDto: InviteUserDto) {

@@ -13,6 +13,7 @@ import { RemoveContributorDto } from './dto/remove-contributor.dto';
 import { ChangePrivilegeDto } from './dto/change-privilege.dto';
 import { UserDto } from './dto/user.dto';
 import { Role } from './enums/role.enum';
+import { DeleteNoteListDto } from './dto/delete-notelist.dto';
 
 @Controller()
 export class AppController {
@@ -72,6 +73,13 @@ export class AppController {
   @Roles(Role.Owner, Role.Read)
   async getNoteList(@Body() getNoteListDto: GetNoteListDto) {
     return await this.appService.getNoteList(getNoteListDto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Post('delete-notelist')
+  @Roles(Role.Owner)
+  async deleteNoteList(@Body() deleteNoteListDto: DeleteNoteListDto) {
+    return await this.appService.deleteNoteList(deleteNoteListDto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

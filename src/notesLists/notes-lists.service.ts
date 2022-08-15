@@ -12,6 +12,7 @@ import { User } from 'src/users/schemas/user.schema';
 import { Role } from 'src/enums/role.enum';
 import { RemoveContributorDto } from 'src/dto/remove-contributor.dto';
 import { ChangePrivilegeDto } from 'src/dto/change-privilege.dto';
+import { DeleteNoteListDto } from 'src/dto/delete-notelist.dto';
 
 @Injectable()
 export class NotesListsService {
@@ -109,6 +110,12 @@ export class NotesListsService {
 
   async getNoteList(noteListId: string): Promise<NoteList> {
     return await this.noteListModel.findById(noteListId).populate('notes');
+  }
+
+  async deleteNoteList(deleteNoteListDto: DeleteNoteListDto): Promise<boolean> {
+    return await this.noteListModel.findByIdAndRemove(
+      deleteNoteListDto.noteListId,
+    );
   }
 
   async getNote(noteId: string, noteListId: string) {
