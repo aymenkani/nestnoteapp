@@ -88,6 +88,22 @@ export class NotesListsService {
     return updatedNoteList;
   }
 
+  async removeContributor(
+    removeContributorDto: removeContributorDto,
+  ): Promise<NoteList> {
+    return await this.noteListModel.findOneAndUpdate(
+      {
+        _id: removeContributorDto.noteListId,
+      },
+      {
+        $pullAll: {
+          contributors: [{ user: removeContributorDto.contributorId }],
+        },
+      },
+      { new: true },
+    );
+  }
+
   async getNoteList(noteListId: string) {
     return await this.noteListModel.findById(noteListId);
   }

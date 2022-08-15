@@ -120,6 +120,10 @@ export class AppService {
     );
   }
 
+  async removeContributor(removeContributorDto: removeContributorDto) {
+    return await this.notesListsService.removeContributor(removeContributorDto);
+  }
+
   async getNoteList(getNoteListDto: GetNoteListDto) {
     return await this.notesListsService.getNoteList(getNoteListDto.noteListId);
   }

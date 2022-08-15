@@ -80,4 +80,11 @@ export class AppController {
   async getNoteList(@Body() getNoteListDto: GetNoteListDto) {
     return await this.appService.getNoteList(getNoteListDto);
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Post('remove-contributor')
+  @Roles(Role.Owner)
+  async removeContributor(@Body() removeContributorDto: removeContributorDto) {
+    return await this.appService.removeContributor(removeContributorDto);
+  }
 }
