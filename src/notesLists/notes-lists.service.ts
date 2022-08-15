@@ -67,4 +67,8 @@ export class NotesListsService {
 
     return updatedNoteList;
   }
+
+  async getNoteList(noteListId: string) {
+    return await this.noteListModel.findById(noteListId);
+  }
 }

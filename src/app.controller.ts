@@ -12,6 +12,7 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { Roles } from './auth/roles.decorator';
 import { RolesGuard } from './auth/roles.guard';
 import { AddNoteToListDto } from './dto/add-note-to-list.dto';
+import { GetNoteListDto } from './dto/get-note-list.dto';
 import { InviteUserDto } from './dto/invite-user.dto';
 import { NoteListDto } from './dto/note-list.dto';
 import { UserDto } from './dto/user.dto';
@@ -49,9 +50,17 @@ export class AppController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('invite')
+  @Roles(Role.Owner)
   async inviteUser(@Body() inviteUserDto: InviteUserDto) {
     return await this.appService.inviteUser(inviteUserDto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Post('get-notelist')
+  @Roles(Role.Owner, Role.Read)
+  async getNoteList(@Body() getNoteListDto: GetNoteListDto) {
+    return await this.appService.getNoteList(getNoteListDto);
   }
 }

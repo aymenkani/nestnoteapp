@@ -16,6 +16,7 @@ import { JwtPayload } from './auth/jwt-strategy';
 import { Role } from './enums/role.enum';
 import { AddNoteToListDto } from './dto/add-note-to-list.dto';
 import { InviteUserDto } from './dto/invite-user.dto';
+import { GetNoteListDto } from './dto/get-note-list.dto';
 
 @Injectable()
 export class AppService {
@@ -95,5 +96,9 @@ export class AppService {
       inviteUserDto.roles,
       inviteUserDto.noteListId,
     );
+  }
+
+  async getNoteList(getNoteListDto: GetNoteListDto) {
+    return await this.notesListsService.getNoteList(getNoteListDto.noteListId);
   }
 }
