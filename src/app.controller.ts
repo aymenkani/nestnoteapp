@@ -12,9 +12,12 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { Roles } from './auth/roles.decorator';
 import { RolesGuard } from './auth/roles.guard';
 import { AddNoteToListDto } from './dto/add-note-to-list.dto';
+import { DeleteNoteDto } from './dto/delete-note.dto';
+import { EditNoteDto } from './dto/edit-note.dto';
 import { GetNoteListDto } from './dto/get-note-list.dto';
 import { InviteUserDto } from './dto/invite-user.dto';
 import { NoteListDto } from './dto/note-list.dto';
+import { removeContributorDto } from './dto/remove-contributor.dto';
 import { UserDto } from './dto/user.dto';
 import { Role } from './enums/role.enum';
 
@@ -55,6 +58,20 @@ export class AppController {
   @Roles(Role.Owner)
   async inviteUser(@Body() inviteUserDto: InviteUserDto) {
     return await this.appService.inviteUser(inviteUserDto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Post('edit-note')
+  @Roles(Role.Owner, Role.Write)
+  async editNote(@Body() editNoteDto: EditNoteDto) {
+    await this.appService.editNote(editNoteDto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Post('delete-note')
+  @Roles(Role.Owner, Role.Write)
+  async deleteNote(@Body() deleteNoteDto: DeleteNoteDto) {
+    await this.appService.deleteNote(deleteNoteDto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

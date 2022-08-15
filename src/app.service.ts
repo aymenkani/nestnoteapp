@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserDto } from './dto/user.dto';
@@ -17,13 +18,16 @@ import { Role } from './enums/role.enum';
 import { AddNoteToListDto } from './dto/add-note-to-list.dto';
 import { InviteUserDto } from './dto/invite-user.dto';
 import { GetNoteListDto } from './dto/get-note-list.dto';
+import { EditNoteDto } from './dto/edit-note.dto';
+import { DeleteNoteDto } from './dto/delete-note.dto';
+import { removeContributorDto } from './dto/remove-contributor.dto';
 
 @Injectable()
 export class AppService {
   constructor(
     private usersService: UsersService,
     private notesListsService: NotesListsService,
-    private NoteService: NotesService,
+    private noteService: NotesService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -74,7 +78,7 @@ export class AppService {
 
     if (!creator) throw new UnauthorizedException();
 
-    const note = await this.NoteService.create({
+    const note = await this.noteService.create({
       ...addNoteToListDto.note,
       creator,
     });
@@ -85,6 +89,24 @@ export class AppService {
     );
 
     return updatedNoteList;
+  }
+
+  async editNote(editNoteDto: EditNoteDto) {
+    return await this.noteService.editNote(
+      editNoteDto.noteId,
+      editNoteDto.changes,
+    );
+  }
+
+  async deleteNote(deleteNoteDto: DeleteNoteDto) {
+    try {
+      await this.noteService.deleteNote(deleteNoteDto.noteId);
+      await this.notesListsService.removeNote(deleteNoteDto.noteId);
+    } catch (err) {
+      throw new InternalServerErrorException('something went wrong');
+    }
+
+    return true;
   }
 
   async inviteUser(inviteUserDto: InviteUserDto) {

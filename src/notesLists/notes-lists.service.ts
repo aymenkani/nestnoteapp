@@ -1,11 +1,16 @@
 import { Model } from 'mongoose';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { NoteList, NoteListDocument } from './schemas/note-list.schema';
 import { NoteListDto } from '../dto/note-list.dto';
 import { Note } from 'src/notes/schemas/note.schema';
 import { User } from 'src/users/schemas/user.schema';
 import { Role } from 'src/enums/role.enum';
+import { removeContributorDto } from 'src/dto/remove-contributor.dto';
 
 @Injectable()
 export class NotesListsService {
@@ -36,10 +41,24 @@ export class NotesListsService {
 
     const updatedNoteList = await this.noteListModel.findOneAndUpdate(
       { _id: noteListId },
-      { notes: [...noteList.notes, note] },
+      { $set: { notes: [...noteList.notes, note] } },
+      { new: true },
     );
 
     return updatedNoteList;
+  }
+
+  async removeNote(noteId: string): Promise<boolean> {
+    try {
+      await this.noteListModel.findOneAndUpdate(
+        { notes: [noteId] },
+        { $pullAll: { notes: noteId } },
+      );
+    } catch (err) {
+      throw new InternalServerErrorException('something went wrong');
+    }
+
+    return true;
   }
 
   async addContributorToNoteList(
@@ -62,7 +81,8 @@ export class NotesListsService {
 
     const updatedNoteList = await this.noteListModel.findOneAndUpdate(
       { _id: noteListId },
-      { contributors: [...noteList.contributors, { user, roles }] },
+      { $set: { contributors: [...noteList.contributors, { user, roles }] } },
+      { new: true },
     );
 
     return updatedNoteList;

@@ -7,6 +7,8 @@ export type NoteDocument = Note & Document;
 
 @Schema()
 export class Note {
+  _id: mongoose.Schema.Types.ObjectId;
+
   @Prop()
   title: string;
 
