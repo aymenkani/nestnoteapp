@@ -1,7 +1,7 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserDto } from './dto/user.dto';
@@ -13,14 +13,14 @@ import { NoteListDto } from './dto/note-list.dto';
 import { NoteList } from './notesLists/schemas/note-list.schema';
 import { NotesListsService } from './notesLists/notes-lists.service';
 import { NotesService } from './notes/notes.service';
-import { JwtPayload } from './auth/jwt-strategy';
 import { Role } from './enums/role.enum';
 import { AddNoteToListDto } from './dto/add-note-to-list.dto';
 import { InviteUserDto } from './dto/invite-user.dto';
 import { GetNoteListDto } from './dto/get-note-list.dto';
 import { EditNoteDto } from './dto/edit-note.dto';
 import { DeleteNoteDto } from './dto/delete-note.dto';
-import { removeContributorDto } from './dto/remove-contributor.dto';
+import { RemoveContributorDto } from './dto/remove-contributor.dto';
+import { ChangePrivilegeDto } from './dto/change-privilege.dto';
 
 @Injectable()
 export class AppService {
@@ -99,12 +99,18 @@ export class AppService {
   }
 
   async deleteNote(deleteNoteDto: DeleteNoteDto) {
-    try {
-      await this.noteService.deleteNote(deleteNoteDto.noteId);
-      await this.notesListsService.removeNote(deleteNoteDto.noteId);
-    } catch (err) {
-      throw new InternalServerErrorException('something went wrong');
-    }
+    const noteExistInList = await this.notesListsService.getNote(
+      deleteNoteDto.noteId,
+      deleteNoteDto.noteListId,
+    );
+
+    if (!noteExistInList) throw new NotFoundException('note not found in list');
+
+    await this.noteService.deleteNote(deleteNoteDto.noteId);
+    await this.notesListsService.removeNote(
+      deleteNoteDto.noteId,
+      deleteNoteDto.noteListId,
+    );
 
     return true;
   }
@@ -120,8 +126,12 @@ export class AppService {
     );
   }
 
-  async removeContributor(removeContributorDto: removeContributorDto) {
+  async removeContributor(removeContributorDto: RemoveContributorDto) {
     return await this.notesListsService.removeContributor(removeContributorDto);
+  }
+
+  async changePrivilege(changePrivilegeDto: ChangePrivilegeDto) {
+    return await this.notesListsService.changePrivilege(changePrivilegeDto);
   }
 
   async getNoteList(getNoteListDto: GetNoteListDto) {

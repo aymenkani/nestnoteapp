@@ -35,14 +35,8 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
     NotesService,
     UsersService,
     JwtStrategy,
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
+    JwtAuthGuard,
+    RolesGuard,
   ],
 })
 export class AppModule {}

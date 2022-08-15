@@ -10,7 +10,8 @@ import { NoteListDto } from '../dto/note-list.dto';
 import { Note } from 'src/notes/schemas/note.schema';
 import { User } from 'src/users/schemas/user.schema';
 import { Role } from 'src/enums/role.enum';
-import { removeContributorDto } from 'src/dto/remove-contributor.dto';
+import { RemoveContributorDto } from 'src/dto/remove-contributor.dto';
+import { ChangePrivilegeDto } from 'src/dto/change-privilege.dto';
 
 @Injectable()
 export class NotesListsService {
@@ -41,18 +42,18 @@ export class NotesListsService {
 
     const updatedNoteList = await this.noteListModel.findOneAndUpdate(
       { _id: noteListId },
-      { $set: { notes: [...noteList.notes, note] } },
+      { $push: { notes: note } },
       { new: true },
     );
 
     return updatedNoteList;
   }
 
-  async removeNote(noteId: string): Promise<boolean> {
+  async removeNote(noteId: string, noteListId: string): Promise<boolean> {
     try {
       await this.noteListModel.findOneAndUpdate(
-        { notes: [noteId] },
-        { $pullAll: { notes: noteId } },
+        { _id: noteListId },
+        { $pull: { notes: noteId } },
       );
     } catch (err) {
       throw new InternalServerErrorException('something went wrong');
@@ -89,22 +90,43 @@ export class NotesListsService {
   }
 
   async removeContributor(
-    removeContributorDto: removeContributorDto,
+    removeContributorDto: RemoveContributorDto,
   ): Promise<NoteList> {
     return await this.noteListModel.findOneAndUpdate(
       {
         _id: removeContributorDto.noteListId,
       },
       {
-        $pullAll: {
-          contributors: [{ user: removeContributorDto.contributorId }],
+        $pull: {
+          contributors: {
+            user: removeContributorDto.contributorId,
+          },
         },
       },
       { new: true },
     );
   }
 
-  async getNoteList(noteListId: string) {
-    return await this.noteListModel.findById(noteListId);
+  async getNoteList(noteListId: string): Promise<NoteList> {
+    return await this.noteListModel.findById(noteListId).populate('notes');
+  }
+
+  async getNote(noteId: string, noteListId: string) {
+    const noteList = await this.getNoteList(noteListId);
+
+    return noteList.notes.find((note) => note._id.toString() === noteId);
+  }
+
+  async changePrivilege(changePrivilegeDto: ChangePrivilegeDto) {
+    return await this.noteListModel.findOneAndUpdate(
+      { _id: changePrivilegeDto.noteListId },
+      {
+        $set: { 'contributors.$[element].roles': changePrivilegeDto.roles },
+      },
+      {
+        arrayFilters: [{ 'element.user': changePrivilegeDto.contributorId }],
+        new: true,
+      },
+    );
   }
 }

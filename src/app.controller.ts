@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Post,
-  Req,
-  UseGuards,
-  Session,
-  SetMetadata,
-} from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { Roles } from './auth/roles.decorator';
@@ -17,7 +9,8 @@ import { EditNoteDto } from './dto/edit-note.dto';
 import { GetNoteListDto } from './dto/get-note-list.dto';
 import { InviteUserDto } from './dto/invite-user.dto';
 import { NoteListDto } from './dto/note-list.dto';
-import { removeContributorDto } from './dto/remove-contributor.dto';
+import { RemoveContributorDto } from './dto/remove-contributor.dto';
+import { ChangePrivilegeDto } from './dto/change-privilege.dto';
 import { UserDto } from './dto/user.dto';
 import { Role } from './enums/role.enum';
 
@@ -71,7 +64,7 @@ export class AppController {
   @Post('delete-note')
   @Roles(Role.Owner, Role.Write)
   async deleteNote(@Body() deleteNoteDto: DeleteNoteDto) {
-    await this.appService.deleteNote(deleteNoteDto);
+    return await this.appService.deleteNote(deleteNoteDto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -84,7 +77,14 @@ export class AppController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('remove-contributor')
   @Roles(Role.Owner)
-  async removeContributor(@Body() removeContributorDto: removeContributorDto) {
+  async removeContributor(@Body() removeContributorDto: RemoveContributorDto) {
     return await this.appService.removeContributor(removeContributorDto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Post('change-privilege')
+  @Roles(Role.Owner)
+  async changePrivilege(@Body() changePrivilegeDto: ChangePrivilegeDto) {
+    return await this.appService.changePrivilege(changePrivilegeDto);
   }
 }

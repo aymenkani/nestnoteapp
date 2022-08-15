@@ -1,4 +1,4 @@
-export class removeContributorDto {
+export class RemoveContributorDto {
   contributorId: string;
   noteListId: string;
 }
