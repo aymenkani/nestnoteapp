@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  BadRequestException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Role } from 'src/enums/role.enum';
 import { NotesListsService } from 'src/notesLists/notes-lists.service';
@@ -21,7 +26,17 @@ export class RolesGuard implements CanActivate {
     }
     const request = context.switchToHttp().getRequest();
 
-    const { noteListId } = request.body;
+    const { noteListId, roles } = request.body;
+
+    // if roles exist in body then check if roles types equal to enum Role
+    if (roles) {
+      const sameType = Object.values(Role).some((role) => roles.includes(role));
+      if (!sameType)
+        throw new BadRequestException(
+          'roles must contain one or more of these values:  ' +
+            Object.values(Role),
+        );
+    }
 
     const noteList = await this.notesListsService.findOneById(noteListId);
 

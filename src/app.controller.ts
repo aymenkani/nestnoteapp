@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Get, Req, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { Roles } from './auth/roles.decorator';
@@ -69,7 +69,7 @@ export class AppController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Post('get-notelist')
+  @Get('get-notelist')
   @Roles(Role.Owner, Role.Read)
   async getNoteList(@Body() getNoteListDto: GetNoteListDto) {
     return await this.appService.getNoteList(getNoteListDto);
@@ -94,5 +94,10 @@ export class AppController {
   @Roles(Role.Owner)
   async changePrivilege(@Body() changePrivilegeDto: ChangePrivilegeDto) {
     return await this.appService.changePrivilege(changePrivilegeDto);
+  }
+
+  @Get('get-roles')
+  getRoles(): Role[] {
+    return Object.values(Role);
   }
 }

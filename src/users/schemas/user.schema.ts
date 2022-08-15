@@ -5,7 +5,14 @@ import { NoteList } from 'src/notesLists/schemas/note-list.schema';
 
 export type UserDocument = User & Document;
 
-@Schema()
+@Schema({
+  toJSON: {
+    transform(doc, ret) {
+      delete ret.password;
+      delete ret.__v;
+    },
+  },
+})
 export class User {
   _id: mongoose.Schema.Types.ObjectId;
 
