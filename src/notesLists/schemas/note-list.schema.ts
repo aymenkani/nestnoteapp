@@ -8,6 +8,8 @@ export type NoteListDocument = NoteList & Document;
 
 @Schema()
 export class NoteList {
+  _id: mongoose.Schema.Types.ObjectId;
+
   @Prop()
   name: string;
 

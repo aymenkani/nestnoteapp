@@ -22,7 +22,7 @@ export class User {
   @Prop()
   password: string;
 
-  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Note' }])
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'NoteList' }])
   noteLists?: NoteList[];
 }
 

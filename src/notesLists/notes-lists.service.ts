@@ -112,7 +112,20 @@ export class NotesListsService {
     return await this.noteListModel.findById(noteListId).populate('notes');
   }
 
-  async deleteNoteList(deleteNoteListDto: DeleteNoteListDto): Promise<boolean> {
+  async changeNoteListName(
+    noteListName: string,
+    noteListId: string,
+  ): Promise<NoteList> {
+    return await this.noteListModel.findByIdAndUpdate(
+      noteListId,
+      { $set: { name: noteListName } },
+      { new: true },
+    );
+  }
+
+  async deleteNoteList(
+    deleteNoteListDto: DeleteNoteListDto,
+  ): Promise<NoteList> {
     return await this.noteListModel.findByIdAndRemove(
       deleteNoteListDto.noteListId,
     );

@@ -14,6 +14,7 @@ import { ChangePrivilegeDto } from './dto/change-privilege.dto';
 import { UserDto } from './dto/user.dto';
 import { Role } from './enums/role.enum';
 import { DeleteNoteListDto } from './dto/delete-notelist.dto';
+import { ChangeNoteListNameDto } from './dto/change-notelist-name.dto';
 
 @Controller()
 export class AppController {
@@ -23,7 +24,7 @@ export class AppController {
   async login(@Body() userDto: UserDto) {
     const { jwt } = await this.appService.login(userDto);
 
-    return jwt;
+    return { jwt };
   }
 
   @Post('signup')
@@ -34,7 +35,19 @@ export class AppController {
   @UseGuards(JwtAuthGuard)
   @Post('create-list')
   async createList(@Body() newNoteList: NoteListDto, @Req() req) {
-    return await this.appService.createList(newNoteList, req.user);
+    return await this.appService.createList(newNoteList, req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('update-list-name')
+  @Roles(Role.Owner)
+  async changeNoteListName(
+    @Body() changeNoteListNameDto: ChangeNoteListNameDto,
+  ) {
+    return await this.appService.changeNoteListName(
+      changeNoteListNameDto.noteListId,
+      changeNoteListNameDto.noteListName,
+    );
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -58,7 +71,7 @@ export class AppController {
   @Post('edit-note')
   @Roles(Role.Owner, Role.Write)
   async editNote(@Body() editNoteDto: EditNoteDto) {
-    await this.appService.editNote(editNoteDto);
+    return await this.appService.editNote(editNoteDto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -69,7 +82,7 @@ export class AppController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Get('get-notelist')
+  @Post('get-notelist')
   @Roles(Role.Owner, Role.Read)
   async getNoteList(@Body() getNoteListDto: GetNoteListDto) {
     return await this.appService.getNoteList(getNoteListDto);
@@ -78,8 +91,14 @@ export class AppController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Post('delete-notelist')
   @Roles(Role.Owner)
-  async deleteNoteList(@Body() deleteNoteListDto: DeleteNoteListDto) {
-    return await this.appService.deleteNoteList(deleteNoteListDto);
+  async deleteNoteList(
+    @Body() deleteNoteListDto: DeleteNoteListDto,
+    @Req() req,
+  ) {
+    return await this.appService.deleteNoteList(
+      deleteNoteListDto,
+      req.user?.userId,
+    );
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -99,5 +118,11 @@ export class AppController {
   @Get('get-roles')
   getRoles(): Role[] {
     return Object.values(Role);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('all-note-lists')
+  async getAllNoteLists(@Req() req) {
+    return await this.appService.getAllNoteLists(req.user?.userId);
   }
 }

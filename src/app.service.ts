@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { UserDto } from './dto/user.dto';
 import { User } from './users/schemas/user.schema';
@@ -52,24 +53,28 @@ export class AppService {
     return { jwt: this.jwtService.sign({ email, sub: user._id }) };
   }
 
-  async createList(newNoteList: NoteListDto, user: any): Promise<NoteList> {
+  async createList(
+    newNoteList: NoteListDto,
+    userId: string,
+  ): Promise<NoteList> {
     const noteList = await this.notesListsService.findByName(newNoteList.name);
     if (noteList)
       throw new BadRequestException(
         'you cannot have more than one list with the same name',
       );
 
-    const existingUser = await this.usersService.findOneById(user.userId);
+    const existingUser = await this.usersService.findOneById(userId);
 
     const createdNoteList = await this.notesListsService.create({
       ...newNoteList,
       contributors: [{ user: existingUser, roles: [Role.Owner] }],
     });
 
-    await this.usersService.update(
-      { noteLists: [...existingUser.noteLists, createdNoteList] },
-      user.userId,
-    );
+    try {
+      await this.usersService.addNoteList(createdNoteList, userId);
+    } catch (err) {
+      throw new InternalServerErrorException();
+    }
 
     return createdNoteList;
   }
@@ -99,6 +104,17 @@ export class AppService {
     );
   }
 
+  async getAllNoteLists(userId: string) {
+    return await this.usersService.findUserNoteLists(userId);
+  }
+
+  async changeNoteListName(noteListId: string, noteListName: string) {
+    return await this.notesListsService.changeNoteListName(
+      noteListName,
+      noteListId,
+    );
+  }
+
   async deleteNote(deleteNoteDto: DeleteNoteDto) {
     const noteExistInList = await this.notesListsService.getNote(
       deleteNoteDto.noteId,
@@ -116,8 +132,21 @@ export class AppService {
     return true;
   }
 
-  async deleteNoteList(deleteNoteListDto: DeleteNoteListDto) {
-    return await this.notesListsService.deleteNoteList(deleteNoteListDto);
+  async deleteNoteList(deleteNoteListDto: DeleteNoteListDto, userId: string) {
+    let user = await this.usersService.findOneById(userId);
+    if (!user) throw new UnauthorizedException();
+
+    try {
+      await this.notesListsService.deleteNoteList(deleteNoteListDto);
+      user = await this.usersService.removeNoteList(
+        deleteNoteListDto.noteListId,
+        userId,
+      );
+    } catch (err) {
+      throw new InternalServerErrorException();
+    }
+
+    return user;
   }
 
   async inviteUser(inviteUserDto: InviteUserDto) {

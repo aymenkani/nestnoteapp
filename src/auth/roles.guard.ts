@@ -40,6 +40,8 @@ export class RolesGuard implements CanActivate {
 
     const noteList = await this.notesListsService.findOneById(noteListId);
 
+    if (!noteList) throw new BadRequestException('noteList not found!');
+
     const noteListUser = noteList.contributors?.find(
       (userObj) => userObj.user.toString() === request.user?.userId,
     );
